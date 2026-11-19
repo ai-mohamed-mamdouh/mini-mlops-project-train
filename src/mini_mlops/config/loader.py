@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
-from configs.training_config import TrainingConfig
-from configs.exceptions import ConfigurationError
+from .training_config import TrainingConfig
+from .exceptions import ConfigurationError
 
 def load_training_config(path: Path | str) -> TrainingConfig:
     path = Path(path)

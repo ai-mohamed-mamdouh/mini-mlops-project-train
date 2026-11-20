@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from mini_mlops.factories.protocols import TrainableModel
 from dataclasses import asdict
 from sklearn.base import BaseEstimator
 from mini_mlops.data.protocols import DatasetLoader
@@ -14,7 +15,7 @@ class TrainingWorkflow:
                  config:TrainingConfig ,
                  data_loader:DatasetLoader,
                  splitter:TrainTestSplitter,
-                 model:BaseEstimator,
+                 model:TrainableModel,
                  pre_processor:PreprocessingStrategy,
                  artifact_store:ArtifactStore ,
                  ):
@@ -27,7 +28,7 @@ class TrainingWorkflow:
         self.artifact_store = artifact_store
 
     @training_tracker
-    def run(self) -> tuple[BaseEstimator, np.ndarray,   pd.Series]:
+    def run(self) -> tuple[TrainableModel, np.ndarray,   pd.Series]:
 
         X,y = self.data_loader.load_data()
         X_train, X_test, y_train, y_test = self.splitter.split(X, y)

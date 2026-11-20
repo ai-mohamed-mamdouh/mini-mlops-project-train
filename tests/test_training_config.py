@@ -29,6 +29,7 @@ def valid_config_data():
             "recall",
             "f1"
         ],
+        "experiment_name": "test-experiment",
         "artifact_dir": "artifacts"
     }
 
@@ -69,6 +70,7 @@ def test_valid_configuration(valid_config_file):
         "recall",
         "f1"
     ]
+    assert config.experiment_name == "test-experiment"
 
     assert config.artifact_dir == str("artifacts")
 

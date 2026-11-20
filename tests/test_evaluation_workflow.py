@@ -20,6 +20,7 @@ def workflow_setup():
         model_name="logistic_regression",
         preprocessing="standard_scaler",
         metrics=["accuracy", "precision", "recall", "f1"],
+        experiment_name="test-experiment",
         artifact_dir=Path("artifacts")
     )
 
@@ -72,6 +73,7 @@ def workflow_setup():
         "evaluator": evaluator,
         "metric_factory": metric_factory,
         "metrics": metrics,
+        "experiment_name": config.experiment_name,
         "X_test": X_test,
         "y_test": y_test,
         "y_pred": y_pred,

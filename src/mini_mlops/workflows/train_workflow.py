@@ -1,20 +1,20 @@
+import pandas as pd
 from sklearn.base import BaseEstimator
-from mini_mlops.config.training_config import TrainingConfig
 from mini_mlops.data.protocols import DatasetLoader
 from mini_mlops.data.splitter import TrainTestSplitter
+from mini_mlops.utils.decorators import training_tracker
 from mini_mlops.adapters.protocols import ArtifactStore
-# from mini_mlops.factories.model_factory import ModelFactory
+from mini_mlops.config.training_config import TrainingConfig
 from mini_mlops.preprocessing.protocols import PreprocessingStrategy
-
 class TrainingWorkflow:
 
     def __init__(self,
-                 config:TrainingConfig,
+                 config:TrainingConfig | None,
                  data_loader:DatasetLoader,
                  splitter:TrainTestSplitter,
                  model:BaseEstimator,
                  pre_processor:PreprocessingStrategy,
-                 artifact_store:ArtifactStore,
+                 artifact_store:ArtifactStore | None,
                  ):
         self.config = config
         self.data_loader = data_loader
@@ -22,8 +22,8 @@ class TrainingWorkflow:
         self.pre_processor = pre_processor
         self.model = model
         self.artifact_store = artifact_store
-
-    def run(self):
+    @training_tracker
+    def run(self) -> tuple[BaseEstimator, pd.DataFrame, pd.Series]:
         X,y = self.data_loader.load_data()
         X_train, X_test, y_train, y_test = self.splitter.split(X, y)
 
@@ -31,6 +31,7 @@ class TrainingWorkflow:
 
         X_train = processor.fit_transform(X_train)
         X_test = processor.transform(X_test)
-        print('model training ...')
+
         self.model.fit(X_train, y_train)
-        print('done')
+
+        return self.model , X_test, y_test # ready Evaluation

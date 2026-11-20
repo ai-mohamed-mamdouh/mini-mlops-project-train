@@ -1,5 +1,4 @@
 from typing import Any
-from pathlib import Path
 from dataclasses import dataclass, field
 from .exceptions import ConfigurationError
 @dataclass
@@ -11,6 +10,7 @@ class TrainingConfig:
     preprocessing: str
     metrics: list[str]
     artifact_dir: str
+    experiment_name: str
     model_params: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:

@@ -3,7 +3,6 @@ import pandas as pd
 from dataclasses import asdict
 from mini_mlops.data.protocols import DatasetLoader
 from mini_mlops.data.splitter import TrainTestSplitter
-from mini_mlops.utils.decorators import training_tracker
 from mini_mlops.adapters.protocols import ArtifactStore
 from mini_mlops.factories.protocols import TrainableModel
 from mini_mlops.config.training_config import TrainingConfig
@@ -26,7 +25,6 @@ class TrainingWorkflow:
         self.model = model
         self.artifact_store = artifact_store
 
-    @training_tracker
     def run(self) -> tuple[TrainableModel, np.ndarray,   pd.Series]:
 
         X,y = self.data_loader.load_data()

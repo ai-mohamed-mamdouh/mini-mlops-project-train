@@ -1,14 +1,14 @@
 
+from typing import Sequence
 from mini_mlops.evaluation.protocols import Metric
-import numpy as np
-import pandas as pd
+from numpy.typing import ArrayLike
 class ModelEvaluator:
 
     def evaluate(
         self,
-        y_true: pd.Series,
-        y_pred: pd.Series,
-        metrics: list[Metric]
+        y_true: ArrayLike,
+        y_pred: ArrayLike,
+        metrics: Sequence[Metric]
     ) -> dict[str, float]:
 
         results = {}

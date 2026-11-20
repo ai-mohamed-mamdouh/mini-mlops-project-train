@@ -10,7 +10,7 @@ class TrainingConfig:
     model_name: str
     preprocessing: str
     metrics: list[str]
-    artifact_dir: Path
+    artifact_dir: str
     model_params: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -71,7 +71,7 @@ class TrainingConfig:
 
         try:
             if "artifact_dir" in data:
-                data["artifact_dir"] = Path(data["artifact_dir"])
+                data["artifact_dir"] = data["artifact_dir"]
 
             return cls(**data)
 

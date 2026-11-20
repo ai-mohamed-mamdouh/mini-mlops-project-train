@@ -1,6 +1,6 @@
 from sklearn.model_selection import train_test_split
 import pandas as pd
-
+import numpy as np
 
 class TrainTestSplitter:
 
@@ -16,7 +16,7 @@ class TrainTestSplitter:
         self,
         X: pd.DataFrame,
         y: pd.Series
-    ):
+    )->list[ pd.DataFrame | pd.Series]:
         return train_test_split(
             X,
             y,

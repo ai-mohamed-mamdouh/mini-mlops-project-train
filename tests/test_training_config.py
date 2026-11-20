@@ -70,7 +70,7 @@ def test_valid_configuration(valid_config_file):
         "f1"
     ]
 
-    assert config.artifact_dir == Path("artifacts")
+    assert config.artifact_dir == str("artifacts")
 
 
 # ==========================================================

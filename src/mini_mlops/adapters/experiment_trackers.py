@@ -44,12 +44,15 @@ class MLflowTracker:
     def log_model(
         self,
         model: TrainableModel ,
-        model_name: str = "model"
+        model_name: str = "model",
     ) -> None:
 
         mlflow.sklearn.log_model(
             sk_model=model,
-            name=model_name
+            name=model_name,
+            skops_trusted_types=[
+            "sklearn.tree._tree.Tree"
+        ]
         )
 
     def log_artifact(

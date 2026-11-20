@@ -1,12 +1,11 @@
-import pandas as pd
 import numpy as np
-from mini_mlops.factories.protocols import TrainableModel
+import pandas as pd
 from dataclasses import asdict
-from sklearn.base import BaseEstimator
 from mini_mlops.data.protocols import DatasetLoader
 from mini_mlops.data.splitter import TrainTestSplitter
 from mini_mlops.utils.decorators import training_tracker
 from mini_mlops.adapters.protocols import ArtifactStore
+from mini_mlops.factories.protocols import TrainableModel
 from mini_mlops.config.training_config import TrainingConfig
 from mini_mlops.preprocessing.protocols import PreprocessingStrategy
 class TrainingWorkflow:

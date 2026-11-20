@@ -1,7 +1,7 @@
+from typing import Any
 from .protocols import TrainableModel
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from typing import Any
 class ModelFactory:
 
     def create(self, model_name:str, model_params : dict[str, Any]) -> TrainableModel :

@@ -32,7 +32,7 @@ def test_tracker_initialization():
             "mini_mlops.adapters.experiment_trackers.mlflow.set_experiment"
         ) as set_experiment,
     ):
-        tracker = MLflowTracker(
+        MLflowTracker(
             tracking_uri="http://127.0.0.1:5000", experiment_name="test-experiment"
         )
 

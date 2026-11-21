@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import Mock
+
+import pytest
 
 from mini_mlops.workflows.train_workflow import TrainingWorkflow
 

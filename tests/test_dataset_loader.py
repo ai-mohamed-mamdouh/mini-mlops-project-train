@@ -1,6 +1,4 @@
-from mini_mlops.data.loader import (
-    SklearnWineDatasetLoader
-)
+from mini_mlops.data.loader import SklearnWineDatasetLoader
 
 
 def test_dataset_loading():

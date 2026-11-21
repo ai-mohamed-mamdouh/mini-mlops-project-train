@@ -1,14 +1,17 @@
 from typing import Any
-from .protocols import TrainableModel
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-class ModelFactory:
 
-    def create(self, model_name:str, model_params : dict[str, Any]) -> TrainableModel :
-        if model_name == 'LogisticRegression' :
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+
+from .protocols import TrainableModel
+
+
+class ModelFactory:
+    def create(self, model_name: str, model_params: dict[str, Any]) -> TrainableModel:
+        if model_name == "LogisticRegression":
             return LogisticRegression(**model_params)
-        
-        elif model_name == 'RandomForestClassifier' :
+
+        elif model_name == "RandomForestClassifier":
             return RandomForestClassifier(**model_params)
-        else :
-            raise ValueError('enter true model name ')
+        else:
+            raise ValueError("enter true model name ")

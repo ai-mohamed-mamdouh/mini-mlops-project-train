@@ -1,11 +1,8 @@
 import json
 
-from pathlib import Path
 from sklearn.linear_model import LogisticRegression
 
-from mini_mlops.adapters.artifact_stores import (
-    LocalArtifactStore
-)
+from mini_mlops.adapters.artifact_stores import LocalArtifactStore
 
 
 def test_save_model(tmp_path):
@@ -14,10 +11,7 @@ def test_save_model(tmp_path):
 
     model = LogisticRegression()
 
-    saved_path = store.save_model(
-        model,
-        "wine_model.joblib"
-    )
+    saved_path = store.save_model(model, "wine_model.joblib")
 
     assert saved_path.exists()
 
@@ -26,16 +20,9 @@ def test_save_metadata(tmp_path):
 
     store = LocalArtifactStore(tmp_path)
 
-    metadata = {
-        "model_name": "LogisticRegression",
-        "dataset": "Wine",
-        "accuracy": 0.95
-    }
+    metadata = {"model_name": "LogisticRegression", "dataset": "Wine", "accuracy": 0.95}
 
-    saved_path = store.save_metadata(
-        metadata,
-        "metadata.json"
-    )
+    saved_path = store.save_metadata(metadata, "metadata.json")
 
     assert saved_path.exists()
 

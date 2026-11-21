@@ -1,13 +1,12 @@
+from pathlib import Path
+from unittest.mock import Mock
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from pathlib import Path
-from unittest.mock import Mock
-
-from mini_mlops.workflows.evaluation_workflow import EvaluationWorkFlow
 from mini_mlops.config.training_config import TrainingConfig
+from mini_mlops.workflows.evaluation_workflow import EvaluationWorkFlow
 
 
 @pytest.fixture
@@ -21,13 +20,10 @@ def workflow_setup():
         preprocessing="standard_scaler",
         metrics=["accuracy", "precision", "recall", "f1"],
         experiment_name="test-experiment",
-        artifact_dir=Path("artifacts")
+        artifact_dir=Path("artifacts"),
     )
 
-    X_test = np.array([
-        [1.2, 2.3, 3.4],
-        [4.5, 5.6, 6.7]
-    ])
+    X_test = np.array([[1.2, 2.3, 3.4], [4.5, 5.6, 6.7]])
 
     y_test = pd.Series([0, 1])
     y_pred = np.array([0, 1])
@@ -37,23 +33,13 @@ def workflow_setup():
 
     metric_factory = Mock()
 
-    metrics = [
-        Mock(),
-        Mock(),
-        Mock(),
-        Mock()
-    ]
+    metrics = [Mock(), Mock(), Mock(), Mock()]
 
     metric_factory.create_many.return_value = metrics
 
     evaluator = Mock()
 
-    expected_results = {
-        "accuracy": 1.0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
-    }
+    expected_results = {"accuracy": 1.0, "precision": 1.0, "recall": 1.0, "f1": 1.0}
 
     evaluator.evaluate.return_value = expected_results
 
@@ -63,7 +49,7 @@ def workflow_setup():
         evaluator=evaluator,
         metric_factory=metric_factory,
         X_test=X_test,
-        y_test=y_test
+        y_test=y_test,
     )
 
     return {
@@ -77,7 +63,7 @@ def workflow_setup():
         "X_test": X_test,
         "y_test": y_test,
         "y_pred": y_pred,
-        "expected_results": expected_results
+        "expected_results": expected_results,
     }
 
 
@@ -116,9 +102,7 @@ def test_model_prediction(workflow_setup):
 
     workflow.run()
 
-    model.predict.assert_called_once_with(
-        workflow_setup["X_test"]
-    )
+    model.predict.assert_called_once_with(workflow_setup["X_test"])
 
 
 def test_metric_factory_creation(workflow_setup):
@@ -128,9 +112,7 @@ def test_metric_factory_creation(workflow_setup):
 
     workflow.run()
 
-    metric_factory.create_many.assert_called_once_with(
-        workflow_setup["config"].metrics
-    )
+    metric_factory.create_many.assert_called_once_with(workflow_setup["config"].metrics)
 
 
 def test_evaluator_receives_correct_data(workflow_setup):
@@ -141,9 +123,7 @@ def test_evaluator_receives_correct_data(workflow_setup):
     workflow.run()
 
     evaluator.evaluate.assert_called_once_with(
-        workflow_setup["y_test"],
-        workflow_setup["y_pred"],
-        workflow_setup["metrics"]
+        workflow_setup["y_test"], workflow_setup["y_pred"], workflow_setup["metrics"]
     )
 
 

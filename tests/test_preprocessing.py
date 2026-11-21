@@ -1,7 +1,4 @@
-from sklearn.preprocessing import (
-    StandardScaler,
-    FunctionTransformer
-)
+from sklearn.preprocessing import StandardScaler
 
 from mini_mlops.preprocessing.strategies import (
     StandardScalerStrategy,

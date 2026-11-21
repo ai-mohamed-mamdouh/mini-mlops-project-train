@@ -1,6 +1,5 @@
-
-from functools import wraps
 from dataclasses import asdict
+from functools import wraps
 
 
 def experiment_tracker(func):
@@ -10,9 +9,7 @@ def experiment_tracker(func):
 
         tracker = self.tracker
 
-        tracker.start_run(
-            run_name=self.run_name
-        )
+        tracker.start_run(run_name=self.run_name)
 
         status = "FAILED"
 

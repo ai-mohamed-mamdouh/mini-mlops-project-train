@@ -1,6 +1,9 @@
-from typing import Any
 from dataclasses import dataclass, field
+from typing import Any
+
 from .exceptions import ConfigurationError
+
+
 @dataclass
 class TrainingConfig:
     dataset_name: str
@@ -20,52 +23,34 @@ class TrainingConfig:
             or not isinstance(self.test_size, (int, float))
             or not 0 < self.test_size < 1
         ):
-            raise ConfigurationError(
-                "test_size must be between 0 and 1."
-            )
+            raise ConfigurationError("test_size must be between 0 and 1.")
 
         if (
             isinstance(self.random_state, bool)
             or not isinstance(self.random_state, int)
             or self.random_state < 0
         ):
-            raise ConfigurationError(
-                "random_state must be a non-negative integer."
-            )
+            raise ConfigurationError("random_state must be a non-negative integer.")
 
-        if (
-            not isinstance(self.model_name, str)
-            or not self.model_name.strip()
-        ):
-            raise ConfigurationError(
-                "model_name cannot be empty."
-            )
+        if not isinstance(self.model_name, str) or not self.model_name.strip():
+            raise ConfigurationError("model_name cannot be empty.")
 
         if not isinstance(self.metrics, list) or not self.metrics:
-            raise ConfigurationError(
-                "metrics cannot be empty."
-            )
+            raise ConfigurationError("metrics cannot be empty.")
 
         if any(
-            not isinstance(metric, str) or not metric.strip()
-            for metric in self.metrics
+            not isinstance(metric, str) or not metric.strip() for metric in self.metrics
         ):
-            raise ConfigurationError(
-                "metrics must contain non-empty strings."
-            )
+            raise ConfigurationError("metrics must contain non-empty strings.")
 
         if len(self.metrics) != len(set(self.metrics)):
-            raise ConfigurationError(
-                "Duplicate metrics are not allowed."
-            )
+            raise ConfigurationError("Duplicate metrics are not allowed.")
 
     @classmethod
     def from_dict(cls, config_data: dict[str, Any]) -> "TrainingConfig":
 
         if not isinstance(config_data, dict):
-            raise ConfigurationError(
-                "Configuration must be a dictionary."
-            )
+            raise ConfigurationError("Configuration must be a dictionary.")
 
         data = config_data.copy()
 
@@ -79,6 +64,4 @@ class TrainingConfig:
             raise
 
         except (TypeError, ValueError) as exc:
-            raise ConfigurationError(
-                f"Invalid training configuration: {exc}"
-            ) from exc
+            raise ConfigurationError(f"Invalid training configuration: {exc}") from exc

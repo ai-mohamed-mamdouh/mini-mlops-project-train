@@ -1,15 +1,13 @@
-
-from mini_mlops.evaluation.protocols import Metric
 from mini_mlops.evaluation.metrics import (
     AccuracyMetric,
+    F1Metric,
     PrecisionMetric,
     RecallMetric,
-    F1Metric,
 )
+from mini_mlops.evaluation.protocols import Metric
 
 
 class MetricFactory:
-
     def __init__(self):
 
         self._metrics = {
@@ -24,15 +22,10 @@ class MetricFactory:
         metric_class = self._metrics.get(metric_name)
 
         if metric_class is None:
-            raise ValueError(
-                f"Unsupported metric: {metric_name}"
-            )
+            raise ValueError(f"Unsupported metric: {metric_name}")
 
         return metric_class()
 
     def create_many(self, metric_names: list[str]) -> list[Metric]:
 
-        return [
-            self.create(metric_name)
-            for metric_name in metric_names
-        ]
+        return [self.create(metric_name) for metric_name in metric_names]

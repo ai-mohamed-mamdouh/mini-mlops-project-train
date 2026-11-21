@@ -3,20 +3,20 @@ repos:
     hooks:
       - id: ruff-check
         name: Ruff Linter
-        entry: uv run ruff check --fix
+        entry: uv run ruff check 
         language: system
         types_or: [python, pyi]
 
       - id: ruff-format
         name: Ruff Formatter
-        entry: uv run ruff format
+        entry: uv run ruff format --check
         language: system
         types_or: [python, pyi]
 
-      - id: pytest
-        name: Python Tests (pytest)
-        entry: uv run pytest -v
-        language: system
-        pass_filenames: false
-        always_run: true
-        verbose: false
+      # - id: pytest
+      #   name: Python Tests (pytest)
+      #   entry: uv run pytest -v
+      #   language: system
+      #   pass_filenames: false
+      #   always_run: true
+      #   verbose: false

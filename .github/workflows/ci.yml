@@ -1,0 +1,40 @@
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Python CI
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # 2. Setup Python and uv
+      - name: Setup uv and Python
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: uv sync --locked --dev
+
+      # 4. Code quality checks
+      - name: Run pre-commit checks
+        run: uv run pre-commit run --all-files --hook-stage pre-commit
+
+      # 5. Automated tests
+      - name: Run Python tests
+        run: uv run pytest -v

@@ -12,8 +12,8 @@ permissions:
   contents: read
 
 jobs:
-  ci:
-    name: Python CI
+  test:
+    name: Code Quality and Tests
     runs-on: ubuntu-latest
 
     steps:

@@ -12,8 +12,8 @@ permissions:
   contents: read
 
 jobs:
-  ci:
-    name: Python CI
+  test:
+    name: Code Quality and Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -39,3 +39,33 @@ jobs:
       # 5. Automated tests
       - name: Run Python tests
         run: uv run pytest -v
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create test file
+        run: echo "app" > text.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifact
+          path: text.txt
+
+  use-artifact:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: test-artifact
+
+      - name: Show artifact contents
+        run: |
+          echo "Files:"
+          ls -la
+
+          echo "File content:"
+          cat text.txt

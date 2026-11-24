@@ -43,7 +43,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: test
+    needs: [test]
     steps:
       - name: Create test file
         run: echo "app" > text.txt
@@ -56,7 +56,7 @@ jobs:
 
   use-artifact:
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build]
 
     steps:
       - name: Download artifact

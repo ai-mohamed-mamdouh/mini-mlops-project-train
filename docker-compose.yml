@@ -1,0 +1,10 @@
+
+services:
+  training:
+    build: .
+
+    environment:
+      BENTOML_HOME: /app/bentoml_store
+    
+    volumes:
+      - ./bentoml_store:/app/bentoml_store

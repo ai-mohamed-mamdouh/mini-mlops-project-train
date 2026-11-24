@@ -1,3 +1,6 @@
+import bentoml
+import joblib
+
 from mini_mlops.utils.decorators import experiment_tracker
 from mini_mlops.workflows.evaluation_workflow import EvaluationWorkFlow
 
@@ -31,6 +34,9 @@ class ExperimentPipeline:
 
         # Log Model
         self.tracker.log_model(model, model_name=self.config.model_name)
+
+        with bentoml.models.create(name=self.config.model_name) as model_ref:
+            joblib.dump(model, model_ref.path_of("model.pkl"))
 
         # Log Metrics
         self.tracker.log_metrics(results)

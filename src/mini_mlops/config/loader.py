@@ -5,7 +5,7 @@ from .exceptions import ConfigurationError
 from .training_config import TrainingConfig
 
 
-def load_training_config(path: Path | str) -> TrainingConfig:
+def load_training_config(path: Path | str = "configs/training.json") -> TrainingConfig:
     path = Path(path)
 
     try:

@@ -12,3 +12,12 @@ mlflow.db
 mlflow.db-shm
 mlflow.db-wal
 mlartifacts/
+
+.venv/
+.git/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+.ruff_cache/
+bentoml_store/

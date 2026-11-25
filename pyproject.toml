@@ -1,13 +1,17 @@
+
 [project]
 name = "mini-mlops"
 version = "0.1.0"
-description = "Add your description here"
+description = "Mini MLOps training pipeline"
 readme = "README.md"
+requires-python = ">=3.12"
+
 authors = [
     { name = "Mohamed Mamdouh", email = "ai.mohamed.mamdouh@gmail.com" }
 ]
-requires-python = ">=3.12"
+
 dependencies = [
+    "bentoml>=1.4,<2",
     "joblib>=1.6.0",
     "mlflow>=3.18.0",
     "numpy>=2.5.5",
@@ -15,9 +19,6 @@ dependencies = [
     "python-dotenv>=1.2.4",
     "scikit-learn>=1.9.1",
 ]
-
-[project.scripts]
-mini-mlops = "mini_mlops:main"
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]
@@ -29,3 +30,5 @@ dev = [
     "pytest>=9.2.0",
     "ruff>=0.17.5",
 ]
+[project.scripts]
+mini-mlops = "mini_mlops.main:main"

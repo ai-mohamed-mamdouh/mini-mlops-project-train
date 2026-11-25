@@ -3,7 +3,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from mini_mlops.adapters.artifact_stores import LocalArtifactStore
 from mini_mlops.adapters.experiment_trackers import MLflowTracker
 from mini_mlops.config.loader import load_training_config
 from mini_mlops.data.loader import SklearnWineDatasetLoader
@@ -39,7 +38,7 @@ def main():
     pre_processor = StandardScalerStrategy()
 
     # Artifact Store
-    artifact_store = LocalArtifactStore(Path(config.artifact_dir))
+    # artifact_store = LocalArtifactStore(Path(config.artifact_dir))
 
     # Training Workflow
     training_workflow = TrainingWorkflow(
@@ -48,7 +47,7 @@ def main():
         splitter=splitter,
         model=model,
         pre_processor=pre_processor,
-        artifact_store=artifact_store,
+        artifact_store=None,
     )
 
     # Evaluation Dependencies

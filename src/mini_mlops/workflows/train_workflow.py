@@ -19,7 +19,7 @@ class TrainingWorkflow:
         splitter: TrainTestSplitter,
         model: TrainableModel,
         pre_processor: PreprocessingStrategy,
-        artifact_store: ArtifactStore,
+        artifact_store: ArtifactStore | None = None,
     ):
 
         self.config = config
@@ -41,7 +41,10 @@ class TrainingWorkflow:
 
         self.model.fit(X_train, y_train)
 
-        self.artifact_store.save_model(self.model, "model.joblib")
-        self.artifact_store.save_metadata(asdict(self.config), "model_metadata.json")
+        if self.artifact_store:
+            self.artifact_store.save_model(self.model, "model.joblib")
+            self.artifact_store.save_metadata(
+                asdict(self.config), "model_metadata.json"
+            )
 
         return self.model, X_test, y_test  # ready Evaluation

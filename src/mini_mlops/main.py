@@ -1,4 +1,5 @@
 import os
+from dataclasses import asdict
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -11,67 +12,76 @@ from mini_mlops.evaluation.evaluator import ModelEvaluator
 from mini_mlops.factories.metric_factory import MetricFactory
 from mini_mlops.factories.model_factory import ModelFactory
 from mini_mlops.preprocessing.strategies import StandardScalerStrategy
+from mini_mlops.utils.decorators import experiment_tracker
+from mini_mlops.workflows.evaluation_workflow import EvaluationWorkFlow
 from mini_mlops.workflows.experiment_pipeline import ExperimentPipeline
 from mini_mlops.workflows.train_workflow import TrainingWorkflow
 
 
-def main():
-
+def main() -> None:
     load_dotenv()
-    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
 
     # Configuration
-    config = load_training_config(Path("configs/training.json"))
+    config_path = Path(os.getenv("TRAINING_CONFIG_PATH", "configs/training.json"))
+    config = load_training_config(config_path)
 
-    # Dataset
+    # Data Dependencies
     data_loader = SklearnWineDatasetLoader()
 
-    # Splitter
     splitter = TrainTestSplitter(
-        test_size=config.test_size, random_state=config.random_state
+        test_size=config.test_size,
+        random_state=config.random_state,
     )
 
-    # Model
-    model = ModelFactory().create(config.model_name, config.model_params)
-
-    # Preprocessing
     pre_processor = StandardScalerStrategy()
 
-    # Artifact Store
-    # artifact_store = LocalArtifactStore(Path(config.artifact_dir))
-
-    # Training Workflow
-    training_workflow = TrainingWorkflow(
-        config=config,
-        data_loader=data_loader,
-        splitter=splitter,
-        model=model,
-        pre_processor=pre_processor,
-        artifact_store=None,
+    # Model
+    model = ModelFactory().create(
+        config.model_name,
+        config.model_params,
     )
 
     # Evaluation Dependencies
     evaluator = ModelEvaluator()
-    metric_factory = MetricFactory()
+    metrics = MetricFactory().create_many(config.metrics)
 
-    # MLflow Tracker
-    tracker = MLflowTracker(
-        tracking_uri=tracking_uri, experiment_name=config.experiment_name
+    # Workflows
+    training_workflow = TrainingWorkflow()
+
+    evaluation_workflow = EvaluationWorkFlow(
+        config=config,
+        evaluator=evaluator,
+        metrics=metrics,
     )
 
     # Experiment Pipeline
-    pipeline = ExperimentPipeline(
-        config=config,
+    experiment_pipeline = ExperimentPipeline(
+        data_loader=data_loader,
+        splitter=splitter,
+        pre_processor=pre_processor,
+        model=model,
         training_workflow=training_workflow,
-        evaluator=evaluator,
-        metric_factory=metric_factory,
-        tracker=tracker,
+        evaluation_workflow=evaluation_workflow,
     )
 
-    results = pipeline.run()
+    # Optional Experiment Tracking
+    run = experiment_pipeline.run
 
-    print("Evaluation Results: ")
-    print(results)
+    if config.enable_tracking:
+        tracker = MLflowTracker(
+            tracking_uri=os.getenv("MLFLOW_TRACKING_URI"),
+            experiment_name=config.experiment_name,
+        )
+
+        run = experiment_tracker(
+            tracker=tracker, run_name="wine_experiment", config=asdict(config)
+        )(run)
+
+    # Execute Experiment
+    model, result = run()
+
+    print("Evaluation Results:")
+    print(result)
 
 
 if __name__ == "__main__":

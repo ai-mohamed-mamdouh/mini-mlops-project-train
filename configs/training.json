@@ -20,5 +20,6 @@
         "f1"
     ],
     "artifact_dir": "artifacts",
-    "experiment_name": "wine-classification"
+    "experiment_name": "wine-classification",
+    "enable_tracking": true
 }

@@ -1,38 +1,41 @@
-from mini_mlops.utils.decorators import experiment_tracker
-from mini_mlops.workflows.evaluation_workflow import EvaluationWorkFlow
+from mini_mlops.data.protocols import DatasetLoader
+from mini_mlops.data.splitter import TrainTestSplitter
+from mini_mlops.factories.protocols import TrainableModel
+from mini_mlops.preprocessing.protocols import PreprocessingStrategy
 
 
 class ExperimentPipeline:
-    def __init__(self, config, training_workflow, evaluator, metric_factory, tracker):
-        self.config = config
-        self.training_workflow = training_workflow
-        self.evaluator = evaluator
-        self.metric_factory = metric_factory
-        self.tracker = tracker
-        self.run_name = config.model_name
+    def __init__(
+        self,
+        data_loader: DatasetLoader,
+        splitter: TrainTestSplitter,
+        pre_processor: PreprocessingStrategy,
+        model: TrainableModel,
+        training_workflow,
+        evaluation_workflow,
+    ):
 
-    @experiment_tracker
+        self.data_loader = data_loader
+        self.splitter = splitter
+        self.pre_processor = pre_processor
+        self.model = model
+        self.training_workflow = training_workflow
+        self.evaluation_workflow = evaluation_workflow
+
     def run(self):
 
+        X, y = self.data_loader.load_data()
+        X_train, X_test, y_train, y_test = self.splitter.split(X, y)
+
+        processor = self.pre_processor.create()
+
+        X_train = processor.fit_transform(X_train)
+        X_test = processor.transform(X_test)
+
         # Training
-        model, X_test, y_test = self.training_workflow.run()
+        model = self.training_workflow.run(self.model, X_train, y_train)
 
         # Evaluation
-        evaluation_workflow = EvaluationWorkFlow(
-            config=self.config,
-            model=model,
-            evaluator=self.evaluator,
-            metric_factory=self.metric_factory,
-            X_test=X_test,
-            y_test=y_test,
-        )
+        results = self.evaluation_workflow.run(model, X_test, y_test)
 
-        results = evaluation_workflow.run()
-
-        # Log Model
-        self.tracker.log_model(model, model_name=self.config.model_name)
-
-        # Log Metrics
-        self.tracker.log_metrics(results)
-
-        return results
+        return model, results

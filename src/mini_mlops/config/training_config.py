@@ -15,6 +15,7 @@ class TrainingConfig:
     artifact_dir: str
     experiment_name: str
     model_params: dict[str, Any] = field(default_factory=dict)
+    enable_tracking: bool = False
 
     def __post_init__(self) -> None:
 

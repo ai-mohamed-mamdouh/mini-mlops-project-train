@@ -1,33 +1,23 @@
-import numpy as np
-import pandas as pd
+from collections.abc import Sequence
 
 from mini_mlops.config.training_config import TrainingConfig
 from mini_mlops.evaluation.evaluator import ModelEvaluator
-from mini_mlops.factories.metric_factory import MetricFactory
-from mini_mlops.factories.protocols import TrainableModel
+from mini_mlops.evaluation.protocols import Metric
 
 
 class EvaluationWorkFlow:
     def __init__(
         self,
         config: TrainingConfig,
-        model: TrainableModel,
         evaluator: ModelEvaluator,
-        metric_factory: MetricFactory,
-        X_test: np.ndarray,
-        y_test: pd.Series,
+        metrics: Sequence[Metric],
     ):
         self.config = config
-        self.model = model
         self.evaluator = evaluator
-        self.metric_factory = metric_factory
-        self.X_test = X_test
-        self.y_test = y_test
+        self.metrics = metrics
 
-    def run(self):
-        y_pred = self.model.predict(self.X_test)
+    def run(self, model, X_test, y_test) -> dict[str, float]:
+        y_pred = model.predict(X_test)
 
-        metrics = self.metric_factory.create_many(self.config.metrics)
-
-        results = self.evaluator.evaluate(self.y_test, y_pred, metrics)
+        results = self.evaluator.evaluate(y_test, y_pred, self.metrics)
         return results

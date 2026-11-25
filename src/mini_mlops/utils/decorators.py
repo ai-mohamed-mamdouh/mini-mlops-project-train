@@ -1,30 +1,34 @@
-from dataclasses import asdict
 from functools import wraps
 
 
-def experiment_tracker(func):
+def experiment_tracker(tracker, run_name, config):
 
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
+    def decorator(func):
 
-        tracker = self.tracker
+        @wraps(func)
+        def wrapper(*args, **kwargs):
 
-        tracker.start_run(run_name=self.run_name)
+            tracker.start_run(run_name=run_name)
 
-        status = "FAILED"
+            status = "FAILED"
 
-        try:
-            # Log configuration
-            tracker.log_params(asdict(self.config))
+            try:
+                model, result = func(*args, **kwargs)
 
-            # Execute pipeline
-            result = func(self, *args, **kwargs)
+                tracker.log_params(model.get_params())
+                tracker.log_params(config)
 
-            status = "FINISHED"
+                tracker.log_metrics(result)
 
-            return result
+                tracker.log_model(model)
 
-        finally:
-            tracker.end_run(status=status)
+                status = "FINISHED"
 
-    return wrapper
+                return model, result
+
+            finally:
+                tracker.end_run(status=status)
+
+        return wrapper
+
+    return decorator

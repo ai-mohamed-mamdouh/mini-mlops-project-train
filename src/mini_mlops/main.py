@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from mini_mlops.adapters.artifact_stores import LocalArtifactStore
 from mini_mlops.adapters.experiment_trackers import MLflowTracker
 from mini_mlops.config.loader import load_training_config
-from mini_mlops.data.loader import SklearnWineDatasetLoader
+from mini_mlops.data.loader import LocalDatasetLoader
 from mini_mlops.data.splitter import TrainTestSplitter
 from mini_mlops.evaluation.evaluator import ModelEvaluator
 from mini_mlops.factories.metric_factory import MetricFactory
@@ -23,10 +23,13 @@ def main() -> None:
 
     # Configuration
     config_path = Path(os.getenv("TRAINING_CONFIG_PATH", "configs/training.json"))
+    DATA_PATH = Path(os.environ["DATA_PATH"])
+    # ARTIFACT_DIR = str(os.environ["ARTIFACT_DIR"])
+    MLFLOW_TRACKING_URI = os.environ["MLFLOW_TRACKING_URI"]
     config = load_training_config(config_path)
 
     # Data Dependencies
-    data_loader = SklearnWineDatasetLoader()
+    data_loader = LocalDatasetLoader(data_path=DATA_PATH)
 
     splitter = TrainTestSplitter(
         test_size=config.test_size,
@@ -69,7 +72,7 @@ def main() -> None:
 
     if config.enable_tracking:
         tracker = MLflowTracker(
-            tracking_uri=os.getenv("MLFLOW_TRACKING_URI"),
+            tracking_uri=MLFLOW_TRACKING_URI,
             experiment_name=config.experiment_name,
         )
 
@@ -78,7 +81,7 @@ def main() -> None:
             run_name="wine_experiment",
             config=config,
             artifact_store=LocalArtifactStore(
-                artifact_dir=Path(os.getenv("ARTIFACT_STORE_PATH", "artifacts"))
+                artifact_dir=Path(os.getenv("ARTIFACT_DIR", "artifacts"))
             ),
         )(run)
 

@@ -1,136 +1,43 @@
-from pathlib import Path
 from unittest.mock import Mock
 
 import numpy as np
-import pandas as pd
 import pytest
 
-from mini_mlops.config.training_config import TrainingConfig
 from mini_mlops.workflows.evaluation_workflow import EvaluationWorkFlow
 
 
 @pytest.fixture
-def workflow_setup():
-
-    config = TrainingConfig(
-        dataset_name="wine",
-        test_size=0.2,
-        random_state=42,
-        model_name="logistic_regression",
-        preprocessing="standard_scaler",
-        metrics=["accuracy", "precision", "recall", "f1"],
-        experiment_name="test-experiment",
-        artifact_dir=Path("artifacts"),
-    )
-
-    X_test = np.array([[1.2, 2.3, 3.4], [4.5, 5.6, 6.7]])
-
-    y_test = pd.Series([0, 1])
-    y_pred = np.array([0, 1])
-
-    model = Mock()
-    model.predict.return_value = y_pred
-
-    metric_factory = Mock()
-
-    metrics = [Mock(), Mock(), Mock(), Mock()]
-
-    metric_factory.create_many.return_value = metrics
-
-    evaluator = Mock()
-
-    expected_results = {"accuracy": 1.0, "precision": 1.0, "recall": 1.0, "f1": 1.0}
-
-    evaluator.evaluate.return_value = expected_results
-
-    workflow = EvaluationWorkFlow(
-        config=config,
-        model=model,
-        evaluator=evaluator,
-        metric_factory=metric_factory,
-        X_test=X_test,
-        y_test=y_test,
-    )
-
-    return {
-        "workflow": workflow,
-        "config": config,
-        "model": model,
-        "evaluator": evaluator,
-        "metric_factory": metric_factory,
-        "metrics": metrics,
-        "experiment_name": config.experiment_name,
-        "X_test": X_test,
-        "y_test": y_test,
-        "y_pred": y_pred,
-        "expected_results": expected_results,
-    }
+def evaluation_setup(training_config):
+    evaluator = Mock(spec=["evaluate"])
+    metrics = [Mock(), Mock()]
+    model = Mock(spec=["predict"])
+    X = np.array([[1, 2], [3, 4]])
+    y = np.array([0, 1])
+    predictions = np.array([0, 0])
+    model.predict.return_value = predictions
+    evaluator.evaluate.return_value = {"accuracy": 0.5}
+    workflow = EvaluationWorkFlow(training_config, evaluator, metrics)
+    return workflow, model, evaluator, metrics, X, y, predictions
 
 
-def test_evaluation_workflow_initialization(workflow_setup):
-
-    workflow = workflow_setup["workflow"]
-
-    assert isinstance(workflow, EvaluationWorkFlow)
-
-
-def test_model_injection(workflow_setup):
-
-    workflow = workflow_setup["workflow"]
-
-    assert workflow.model is workflow_setup["model"]
+def test_evaluation_predicts_and_passes_correct_inputs(evaluation_setup):
+    workflow, model, evaluator, metrics, X, y, predictions = evaluation_setup
+    result = workflow.run(model, X, y)
+    model.predict.assert_called_once_with(X)
+    evaluator.evaluate.assert_called_once_with(y, predictions, metrics)
+    assert result == {"accuracy": 0.5}
 
 
-def test_evaluator_injection(workflow_setup):
-
-    workflow = workflow_setup["workflow"]
-
-    assert workflow.evaluator is workflow_setup["evaluator"]
-
-
-def test_metric_factory_injection(workflow_setup):
-
-    workflow = workflow_setup["workflow"]
-
-    assert workflow.metric_factory is workflow_setup["metric_factory"]
+def test_prediction_failure_does_not_evaluate(evaluation_setup):
+    workflow, model, evaluator, _, X, y, _ = evaluation_setup
+    model.predict.side_effect = RuntimeError("prediction failed")
+    with pytest.raises(RuntimeError, match="prediction failed"):
+        workflow.run(model, X, y)
+    evaluator.evaluate.assert_not_called()
 
 
-def test_model_prediction(workflow_setup):
-
-    workflow = workflow_setup["workflow"]
-    model = workflow_setup["model"]
-
-    workflow.run()
-
-    model.predict.assert_called_once_with(workflow_setup["X_test"])
-
-
-def test_metric_factory_creation(workflow_setup):
-
-    workflow = workflow_setup["workflow"]
-    metric_factory = workflow_setup["metric_factory"]
-
-    workflow.run()
-
-    metric_factory.create_many.assert_called_once_with(workflow_setup["config"].metrics)
-
-
-def test_evaluator_receives_correct_data(workflow_setup):
-
-    workflow = workflow_setup["workflow"]
-    evaluator = workflow_setup["evaluator"]
-
-    workflow.run()
-
-    evaluator.evaluate.assert_called_once_with(
-        workflow_setup["y_test"], workflow_setup["y_pred"], workflow_setup["metrics"]
-    )
-
-
-def test_evaluation_returns_results(workflow_setup):
-
-    workflow = workflow_setup["workflow"]
-
-    results = workflow.run()
-
-    assert results == workflow_setup["expected_results"]
+def test_evaluation_failure_propagates(evaluation_setup):
+    workflow, model, evaluator, _, X, y, _ = evaluation_setup
+    evaluator.evaluate.side_effect = ValueError("metric failed")
+    with pytest.raises(ValueError, match="metric failed"):
+        workflow.run(model, X, y)

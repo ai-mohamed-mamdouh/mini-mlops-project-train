@@ -1,60 +1,21 @@
 from unittest.mock import Mock
 
+import numpy as np
 import pytest
 
 from mini_mlops.workflows.train_workflow import TrainingWorkflow
 
 
-@pytest.fixture
-def dependencies():
-
-    return {
-        "config": Mock(),
-        "data_loader": Mock(),
-        "splitter": Mock(),
-        "model": Mock(),
-        "pre_processor": Mock(),
-        "artifact_store": Mock(),
-    }
+def test_training_fits_and_returns_same_model():
+    model = Mock(spec=["fit"])
+    X = np.array([[1, 2], [3, 4]])
+    y = np.array([0, 1])
+    assert TrainingWorkflow().run(model, X, y) is model
+    model.fit.assert_called_once_with(X, y)
 
 
-def test_workflow_initialization(dependencies):
-
-    workflow = TrainingWorkflow(**dependencies)
-
-    assert isinstance(workflow, TrainingWorkflow)
-
-
-def test_dataset_loader_injection(dependencies):
-
-    workflow = TrainingWorkflow(**dependencies)
-
-    assert workflow.data_loader is dependencies["data_loader"]
-
-
-def test_model_injection(dependencies):
-
-    workflow = TrainingWorkflow(**dependencies)
-
-    assert workflow.model is dependencies["model"]
-
-
-def test_preprocessor_injection(dependencies):
-
-    workflow = TrainingWorkflow(**dependencies)
-
-    assert workflow.pre_processor is dependencies["pre_processor"]
-
-
-def test_artifact_store_injection(dependencies):
-
-    workflow = TrainingWorkflow(**dependencies)
-
-    assert workflow.artifact_store is dependencies["artifact_store"]
-
-
-def test_splitter_injection(dependencies):
-
-    workflow = TrainingWorkflow(**dependencies)
-
-    assert workflow.splitter is dependencies["splitter"]
+def test_training_propagates_fit_error():
+    model = Mock(spec=["fit"])
+    model.fit.side_effect = ValueError("fit failed")
+    with pytest.raises(ValueError, match="fit failed"):
+        TrainingWorkflow().run(model, [[1]], [0])

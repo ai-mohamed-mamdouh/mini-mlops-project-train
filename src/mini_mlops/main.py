@@ -1,9 +1,9 @@
 import os
-from dataclasses import asdict
 from pathlib import Path
 
 from dotenv import load_dotenv
 
+from mini_mlops.adapters.artifact_stores import LocalArtifactStore
 from mini_mlops.adapters.experiment_trackers import MLflowTracker
 from mini_mlops.config.loader import load_training_config
 from mini_mlops.data.loader import SklearnWineDatasetLoader
@@ -74,7 +74,12 @@ def main() -> None:
         )
 
         run = experiment_tracker(
-            tracker=tracker, run_name="wine_experiment", config=asdict(config)
+            tracker=tracker,
+            run_name="wine_experiment",
+            config=config,
+            artifact_store=LocalArtifactStore(
+                artifact_dir=Path(os.getenv("ARTIFACT_STORE_PATH", "artifacts"))
+            ),
         )(run)
 
     # Execute Experiment

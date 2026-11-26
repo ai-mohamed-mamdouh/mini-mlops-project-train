@@ -12,7 +12,7 @@ mlflow.db
 mlflow.db-shm
 mlflow.db-wal
 mlartifacts/
-
+save.py
 .venv/
 .git/
 __pycache__/
